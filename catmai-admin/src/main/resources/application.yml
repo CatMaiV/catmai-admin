@@ -129,3 +129,16 @@ xss:
   excludes: /system/notice
   # 匹配链接
   urlPatterns: /system/*,/monitor/*,/tool/*
+
+#微信配置
+wechat:
+  appId: 
+  appSecret: 
+  # 商户ID
+  mchId:
+  # 商户key
+  key:
+  # 商户证书密钥
+  caKey:
+  # 回调地址
+  notifyUrl: 
