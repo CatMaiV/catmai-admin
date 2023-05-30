@@ -238,6 +238,13 @@ public class SysLoginService
         SysUser sysUser = userService.selectUserByOpenId(userInfo.getOpenId());
         if (StringUtils.isNotNull(sysUser)){
             //不为空直接登录
+            //不为空直接登录
+            if (userInfo.getNickName().equals("微信用户")){
+                sysUser.setNickName(userInfo.getNickName() + UUID.fastUUID().toString().substring(0,6));
+            }
+            sysUser.setSex(userInfo.getGender());
+            sysUser.setAvatar(userInfo.getAvatarUrl());
+            userService.updateUserProfile(sysUser);
             return login(sysUser.getUserName(),sysUser.getOpenId());
         }else {
             //如果为空，注册一个账号

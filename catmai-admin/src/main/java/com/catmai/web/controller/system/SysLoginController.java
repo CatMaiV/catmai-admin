@@ -11,6 +11,7 @@ import com.catmai.common.wechat.WechatUtils;
 import com.catmai.common.wechat.model.WechatAppLoginDto;
 import com.catmai.common.wechat.model.WechatResult;
 import com.catmai.common.wechat.model.WechatUserInfo;
+import com.catmai.system.service.ISysUserService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,6 +50,9 @@ public class SysLoginController {
 
     @Autowired
     private SysPermissionService permissionService;
+
+    @Autowired
+    private ISysUserService sysUserService;
 
     /**
      * 登录方法
@@ -101,7 +105,6 @@ public class SysLoginController {
     }
 
     @Anonymous
-    @Log(title = "微信登录")
     @PostMapping("/wechat/auth")
     public AjaxResult wechatLogin(@Valid @RequestBody WechatAppLoginDto appLoginDto){
         AjaxResult ajax = AjaxResult.success();
@@ -127,6 +130,25 @@ public class SysLoginController {
         }else {
             log.error(wechatResult.getErrmsg());
             return AjaxResult.error(wechatResult.getErrmsg());
+        }
+    }
+
+    @Log(title = "获取手机号")
+    @GetMapping("/wechat/getPhoneNumber")
+    public AjaxResult getUserPhone(String code){
+        //先获取access_token
+        String accessToken = WechatUtils.getAccessToken(WeChatConfig.getAppId(),WeChatConfig.getAppSecret());
+        if (StringUtils.isEmpty(accessToken)){
+            return AjaxResult.error("accessToken获取失败");
+        }
+        String phone = WechatUtils.getUserPhone(accessToken,code);
+        if (StringUtils.isNotEmpty(phone)){
+            SysUser loginUser = SecurityUtils.getLoginUser().getUser();
+            loginUser.setPhonenumber(phone);
+            sysUserService.updateUserProfile(loginUser);
+            return AjaxResult.success();
+        }else {
+            return AjaxResult.error("手机号获取失败");
         }
     }
 }
